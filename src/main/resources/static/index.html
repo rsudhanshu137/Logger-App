@@ -1,52 +1,41 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Log Watcher App</title>
+    <title>Log Watcher Service</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script>
-        let client = null;
-        let socket = new SockJS("/logs");
-        client = Stomp.over(socket);
 
-        // Array to store messages
-        let messages = [];
+        let client=null;
+        let socket=new SockJS("/logs");
+        client=Stomp.over(socket);
 
-        client.connect({}, function () {
-            console.log("Connected!");
 
-            client.subscribe("/topic/log", function (data) {
-                const message = JSON.parse(data.body);
+        client.connect({},function(name){
+            console.log("connected!!");
 
-                // Add the message to the list
-                messages.push(message);
-
-                // Sort messages by sequence
-                messages.sort((a, b) => a.sequence - b.sequence);
-
-                // Update the UI
-                updateLogs();
+            client.subscribe("/topic/log",function(data){
+                print(JSON.parse(data.body));
             });
+
         });
 
-        function updateLogs() {
-            let logContainer = document.getElementById("logs");
+        function print(message){
+            let log=document.getElementById("logs");
+            let newLogs=document.createElement("p");
 
-            // Clear the existing logs
-            logContainer.innerHTML = "";
+            newLogs.appendChild(document.createTextNode(message.content));
+            log.appendChild(newLogs);
 
-            // Append each sorted message to the logs
-            messages.forEach((message) => {
-            console.log(message);
-                let newLog = document.createElement("p");
-                newLog.appendChild(document.createTextNode(message.content));
-                logContainer.appendChild(newLog);
-            });
         }
+
+
     </script>
+
 </head>
 <body>
-<h1>Log Watcher Application</h1>
-<div id="logs"></div>
+<h1>Log watcher App</h1>
+<p id="logs"></p>
+
 </body>
 </html>
